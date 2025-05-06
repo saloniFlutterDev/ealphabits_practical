@@ -38,7 +38,7 @@ class SignupCubit extends Cubit<SignupRequestState> {
         final userId = user.uid;
 
         await firestore.collection('users').doc(userId).set({
-          'id': userId,
+          'userId': userId,
           'name':userSignUpRequestModel.name ?? '',
           'email': userSignUpRequestModel.email,
           'profileImgUrl': 'https://i.pravatar.cc/150?img=9',
