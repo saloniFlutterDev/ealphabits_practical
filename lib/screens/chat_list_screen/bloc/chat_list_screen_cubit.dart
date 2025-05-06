@@ -1,40 +1,53 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ealphabits_practical/screens/chat_list_screen/model/chat_user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../login_screen/view/login_screen.dart';
 
 
 class ChatListScreenCubit extends Cubit<List<ChatUserModel>> {
   ChatListScreenCubit() : super([]);
 
-  addUserData(){
-    final List<ChatUserModel> chatUserModel = [
-      ChatUserModel(
-        chatId: '1',
-        name: 'Support Bot',
-        lastMessage: 'Hey, how are you?',
-        userId: '1111',
-        profileImgUrl: 'https://i.pravatar.cc/150?img=1',
-        sendAt: DateTime.now(),
-      ),
-      ChatUserModel(
-        chatId: '2',
-        name: 'Sales Bot',
-        lastMessage: 'Let\'s catch up tomorrow.',
-        userId:'1112',
-        profileImgUrl: 'https://i.pravatar.cc/150?img=2',
-        sendAt: DateTime.now(),
-      ),
-      ChatUserModel(
-        chatId: '3',
-        name: 'FAQ Bot',
-        lastMessage: 'Got the files you sent.',
-        userId:'1113',
-        profileImgUrl: 'https://i.pravatar.cc/150?img=3',
-        sendAt: DateTime.now(),
-      ),
-    ];
-    emit(chatUserModel);
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  Future<void> loadFirebaseUsers() async {
+    try {
+      final currentUserId = auth.currentUser?.uid;
+      if (currentUserId == null) {
+        emit([]);
+        return;
+      }
+      final snapshot = await firestore.collection('users').get();
+      for (var doc in snapshot.docs) {
+        print("Raw Firestore doc: ${doc.data()}");
+      }
+      final users = snapshot.docs
+          .map((doc) => ChatUserModel.fromJson(doc.data()))
+          .where((user) => user.userId != currentUserId)
+          .toList();
+      emit(users);
+
+    } catch (e) {
+      print('Error loading users: $e');
+    }
   }
 
+  // Sign out the current user
+  Future<void> signOut(BuildContext context) async {
+    await auth.signOut();
+    debugPrint('Sign Out');
+
+    // Navigate to LoginScreen after signing out
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+    );
+  }
 }
 
 

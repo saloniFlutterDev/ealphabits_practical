@@ -21,7 +21,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
   @override
   void initState() {
     // TODO: implement initState
-    chatListScreenCubit.addUserData();
+    chatListScreenCubit.loadFirebaseUsers();
+
     super.initState();
   }
 
@@ -29,58 +30,69 @@ class _ChatListScreenState extends State<ChatListScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => chatListScreenCubit,
-      child: Scaffold(
-        appBar: AppBar(title: Text(BaseStrings.chatListScreenTitle, style: BaseTextStyle.chatListScreenTitle)),
-        body: BlocBuilder<ChatListScreenCubit, List<ChatUserModel>>(
-          builder: (context, userListState) {
-            if (userListState.isEmpty) {
-              return Center(child: Text(BaseStrings.noUsersAvailable));
-            }
-            return ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
-              itemCount: userListState.length,
-              itemBuilder: (context, index) {
-                return InkWell(
-                  focusColor: BaseColorConstants.textSecondary,
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(chatUserModel: userListState[index])));
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: CachedNetworkImage(
-                            imageUrl: userListState[index].profileImgUrl,
-                            fit: BoxFit.cover,
-                            height: 45,
-                            width: 45,
-                            placeholder: (context, url) => const CircularProgressIndicator(),
-                            errorWidget: (context, url, error) => const Icon(Icons.error),
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(BaseStrings.chatListScreenTitle, style: BaseTextStyle.chatListScreenTitle,),
+            actions: [IconButton(
+              onPressed: () {
+                chatListScreenCubit.signOut(context);
+              }, icon: Icon(Icons.logout,),),
+            ],),
+          body: BlocBuilder<ChatListScreenCubit, List<ChatUserModel>>(
+            builder: (context, userListState) {
+              if (userListState.isEmpty) {
+                return Center(child: Text(BaseStrings.noUsersAvailable));
+              }
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                itemCount: userListState.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    focusColor: BaseColorConstants.textSecondary,
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChatScreen(/*chatUserModel: userListState[index],*/ receiverId: userListState[index].userId, receiverName: userListState[index].name,)));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: CachedNetworkImage(
+                              imageUrl: userListState[index].profileImgUrl,
+                              fit: BoxFit.cover,
+                              height: 45,
+                              width: 45,
+                              placeholder: (context, url) => const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => const Icon(Icons.error),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(userListState[index].name, style: BaseTextStyle.titleTextStyle),
-                              const SizedBox(height: 4),
-                              Text(userListState[index].lastMessage, style: BaseTextStyle.subtitleTextStyle, overflow: TextOverflow.ellipsis),
-                            ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(userListState[index].name, style: BaseTextStyle.titleTextStyle),
+                                const SizedBox(height: 4),
+                                Text(userListState[index].lastMessage, style: BaseTextStyle.subtitleTextStyle, overflow: TextOverflow.ellipsis),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return Divider(color: BaseColorConstants.divider, height: 1);
-              },
-            );
-          },
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return Divider(color: BaseColorConstants.divider, height: 1);
+                },
+              );
+            },
+          ),
         ),
       ),
     );

@@ -8,4 +8,5 @@ class BaseTextStyle {
   static var titleTextStyle = TextStyle(color: BaseColorConstants.textPrimary, fontSize: 16, fontWeight: FontWeight.w400,);
   static var subtitleTextStyle = TextStyle(color: BaseColorConstants.textSecondary, fontSize: 14, fontWeight: FontWeight.w400,);
   static var dateTimeTextStyle = TextStyle(color: BaseColorConstants.textSecondary, fontSize: 10, fontWeight: FontWeight.w400,);
+  static var buttonTextStyle = TextStyle(color: BaseColorConstants.surface, fontSize: 16, fontWeight: FontWeight.w500,);
 }

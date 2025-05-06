@@ -20,7 +20,7 @@ class BaseButtons {
                   color: BaseColorConstants.primary,
                 ),
               ),
-              backgroundColor: WidgetStateProperty.all(BaseColorConstants.surface),
+              backgroundColor: WidgetStateProperty.all(BaseColorConstants.primary),
               shape: WidgetStateProperty.all(RoundedRectangleBorder(
                 borderRadius: isNoBorderRadius ? BorderRadius.circular(10.0) : BorderRadius.circular(40.0),
                 side: BorderSide(
@@ -54,7 +54,7 @@ class BaseButtons {
       child: Text(
         title,
         style: isBordered
-            ? BaseTextStyle.titleTextStyle
+            ? BaseTextStyle.buttonTextStyle
             : BaseTextStyle.titleTextStyle,
         textAlign: TextAlign.center,
       ),
